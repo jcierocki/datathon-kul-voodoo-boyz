@@ -1,0 +1,4 @@
+*.csv linguist-vendored
+*.eps linguist-generated
+*.tex linguist-generated
+*.html linguist-generated
