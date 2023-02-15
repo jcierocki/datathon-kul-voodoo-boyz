@@ -20,7 +20,8 @@ then
 	esac
 fi
 
-if ! command -v pyenv &> /dev/null
+pyenv --version &> /dev/null
+if [ $? -ne 0 ]
 then
 	echo -e 'Install pyenv first. See https://github.com/pyenv/pyenv. I personally recommend using manual "Basic GitHub Checkout" method instead of "Automatic Installer" due to higher relability.'
 	exit 1
