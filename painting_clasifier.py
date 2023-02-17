@@ -5,7 +5,7 @@ import os
 model = YOLO('keremberke/yolov8m-painting-classification')
 
 # set model parameters
-model.overrides['conf'] = 0.25  # model confidence threshold
+model.overrides['conf'] = 0.4  # model confidence threshold
 
 # set path to image folder
 image_folder = './generated_images/'
