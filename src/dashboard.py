@@ -14,6 +14,10 @@ import visdcc
 import nltk
 from nltk.tokenize import sent_tokenize
 nltk.download('popular')
+import folium
+import circlify
+import matplotlib.pyplot as plt
+import base64
 
 app = dash.Dash(external_stylesheets=[dbc.themes.MINTY])
 
@@ -231,6 +235,8 @@ def specialization():
 merged = specialization()
 dropdown_specialization = merged['artist'].unique()
 
+
+
 app.layout = dbc.Container(fluid=True, children=[
     navbar,
     row_general_info,
@@ -257,14 +263,53 @@ app.layout = dbc.Container(fluid=True, children=[
         dbc.Row(
             [
                 dbc.Col(html.Div([
-                    dcc.Graph(id="spec_plot") ,
-                    dcc.Dropdown(dropdown_specialization, 'Anders Zorn', id='dropdown_spec')
+                            dbc.Row(
+                                html.Div("Artist and their specializations"), style={"text-align": "center", "font-size": "x-large"}, align="center"
+                            ),
+                            dbc.Row(
+                                html.Div([
+                                    dcc.Graph(id="spec_plot") ,
+                                    dcc.Dropdown(dropdown_specialization, 'Anders Zorn', id='dropdown_spec')
+                                ])
+                            ),
                 ])),
                 dbc.Col(html.Div([
-                    dbc.Col(html.Div("PLOT"), style={"text-align": "center", "font-size": "large"}),
+                            dbc.Row(
+                                html.Div(html.Br()), style={"text-align": "center", "font-size": "large"}, align="center"
+                            ),
+                            dbc.Row(
+                                html.Div("Birthplaces of Artists"), style={"text-align": "center", "font-size": "x-large"}, align="center"
+                            ),
+                            dbc.Row(
+                                html.Iframe(id = "map", srcDoc=open('data/birthplaces_map.html', 'r').read(), width = '50%', height='550'), align="center"
+                            ),
                 ]))
             ], align="center"
         )
+    ]),
+    html.Div([
+        dbc.Row(
+            html.Div(html.Br()), style={"text-align": "center", "font-size": "large"}, align="center"
+        ),
+        dbc.Row(
+            [
+                dbc.Col(html.Div([
+                            dbc.Row(
+                                html.Div("The Most Used Mediums"), style={"text-align": "center", "font-size": "x-large"}, align="center"
+                            ),
+                            dbc.Row(
+                                html.Img(src='data:image/;base64,{}'.format(base64.b64encode(open("data/medium.png", 'rb').read()).decode('ascii'))), align="center"
+                            ),
+                ])),
+                dbc.Col(html.Div([
+                            dbc.Row(
+                                html.Div("TEXT"), style={"text-align": "center", "font-size": "large"}, align="center"
+                            ),
+                ]))
+            ], align="center"
+        )
+        
+
     ])
 ])
 
