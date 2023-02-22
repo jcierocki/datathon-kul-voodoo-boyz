@@ -131,3 +131,5 @@ dmypy.json
 
 # Artwork images
 data/**/*.jpg
+
+data/intermediate_data/
