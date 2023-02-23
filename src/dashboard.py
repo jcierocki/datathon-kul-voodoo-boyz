@@ -13,17 +13,15 @@ from py2neo import Graph
 import visdcc
 import nltk
 from nltk.tokenize import sent_tokenize
-nltk.download('popular')
-import folium
-import circlify
 import matplotlib.pyplot as plt
 import base64
+import flask
 
-app = dash.Dash(external_stylesheets=[dbc.themes.MINTY])
+# nltk.download('popular')
 
+server = flask.Flask(__name__)
 
-nodes = []
-edges = []
+app = dash.Dash(url_base_pathname="/", external_stylesheets=[dbc.themes.MINTY], server=server)
 
 color_1 = '#CCEECD'
 color_2 = '#0F7620'
@@ -105,7 +103,7 @@ def plot_movements(fig1):
     fig1.update_yaxes( tickmode='linear',
                         tickfont_size=9)
     fig1.update_layout()
-    fig1.show()
+    
     return fig1
 
 navbar = dbc.Navbar(
@@ -354,7 +352,9 @@ def update_artist(x):
                             hoverinfo = 'text',
                             marker = dict(colors=color_selected))])
     fig_spec.update_layout(title=selected['artist'][0], title_font_size = 20, title_x=0.5, showlegend=False)
-    fig_spec.show()
+
     return fig_spec
 
-app.run_server(debug=True)
+
+if __name__ == "__main__":
+    app.run_server(debug=True, host="127.0.0.1", port=8000)
