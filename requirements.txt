@@ -192,3 +192,4 @@ y-py==0.5.5
 ypy-websocket==0.8.2
 zipp==3.13.0
 ultralytics==8.0.35
+split-folders==0.5.1
