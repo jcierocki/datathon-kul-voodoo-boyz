@@ -73,22 +73,21 @@ class YoloV8Classifier():
         model.train(data=data_location, task="classify",
                     mode="train", epochs=epochs, patience=100, imgsz=640)
 
-    def predict(self, model_path: str, image_path: str):
+    def predict(self, model: YOLO, im: Image):
         # Define the index to name mapping
         index_to_name = {1: 'Abstract', 2: 'Academism', 3: 'Aestheticism', 4: 'Animalier', 5: 'Art Nouveau', 6: 'Ashcan School', 7: 'Avant-Garde', 8: 'Barbizon School', 9: 'Baroque', 10: 'Bauhaus', 11: 'Berlin Secession', 12: 'Bristol School', 13: 'Decadent Movement', 14: 'Divisionism', 15: 'Dusseldorf School', 16: 'Dutch Golden Age', 17: 'Early Netherlandish', 18: 'Expressionism', 19: 'Fauvism', 20: 'Futurism', 21: 'Gothic', 22: 'Heidelberg School', 23: 'Hudson River School', 24: 'Impressionism', 25: 'Luminism', 26: 'Mannerism',
                          27: 'Modernism', 28: 'Munich School', 29: 'Muralism', 30: 'Neo-Impressionism', 31: 'Neoclassicism', 32: 'Newlyn School', 33: 'Norwich School', 34: 'Orientalism', 35: 'Pointillism', 36: 'Post-Impressionism', 37: 'Pre-Raphaelite Brotherhood', 38: 'Primitivism', 39: 'Purismo', 40: 'Realism', 41: 'Regionalism', 42: 'Renaissance', 43: 'Rocky Mountain School', 44: 'Romanticism', 45: 'Suprematism', 46: 'Surrealism', 47: 'Symbolism', 48: 'Synthetism', 49: 'Tonalism', 50: 'Venetian School', 51: 'Vienna Secession'}
 
         # Load the model
         # self.model = YOLO("yolov8m-cls.yaml")  # build model
-        self.model = YOLO(model_path)  # path to the best weigths ends with .pt
+        self.model = model  # path to the best weigths ends with .pt
         # Set model confidence threshold
         self.model.overrides['conf'] = 0.25
         # Set path to image folder
-        self.image_folder = image_path
+        # self.image_folder = image_path
         # Create a list to store predictions for each image
 
-        # Load image
-        im = Image.open(image_path)
+        
 
         imResize = im.resize((640, 640), Image.LANCZOS)
         # Perform inference
@@ -100,7 +99,7 @@ class YoloV8Classifier():
         index_names = [index_to_name[i] for i in index.tolist()]
         probs = results.tolist()
         # Create a dictionary to store the predictions for this image
-        prediction = {"filename": image_path, "predictions": []}
+        prediction = {"filename": ".", "predictions": []}
 
         # Loop through the predicted class names and their probabilities and add them to the dictionary
         for name, prob in zip(index_names, probs):

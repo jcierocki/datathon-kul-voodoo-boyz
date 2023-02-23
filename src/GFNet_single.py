@@ -14,14 +14,13 @@ from torchvision.datasets.folder import default_loader
 
 class GFNetClassifier():
 
-    def predict(self, model_path: str, image_path: str):
+    def predict(self, model, image: Image):
         # Define the index to name mapping
         index_to_name = {0: 'Fake', 1: 'Real'}
 
-        self.image_folder = image_path
+        # self.image_folder = image_path
         # device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
-        model = torch.load(model_path)
-        model.eval()
+        
         # model.to(device)
         # dataset_val, _ = build_dataset(is_train=False, args=("../../Dataset_fake_split", "gfnet-xs", './logs/gfnet-xs/checkpoint_best.pth'))
         trans = transforms.Compose([transforms.Resize(225, interpolation=4),
@@ -29,8 +28,6 @@ class GFNetClassifier():
                                     transforms.ToTensor(),
                                     transforms.Normalize((0.5), (0.5))])
 
-        # Loop through images in folder
-        image = Image.open(image_path).convert("RGB")
         width, height = image.size
 
         # Set the size of the crop
@@ -62,7 +59,7 @@ class GFNetClassifier():
                 probs = results.tolist()
 
                 # Create a dictionary to store the predictions for this image
-                prediction = {"filename": image_path, "predictions": []}
+                prediction = {"filename": ".", "predictions": []}
 
                 # Loop through the predicted class names and their probabilities and add them to the dictionary
                 for name, prob in zip(index_names, probs):
