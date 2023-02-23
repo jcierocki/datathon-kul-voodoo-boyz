@@ -1,0 +1,3 @@
+[submodule "GFNet"]
+	path = GFNet
+	url = https://github.com/raoyongming/GFNet.git
