@@ -128,3 +128,8 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Artwork images
+data/**/*.jpg
+
+data/intermediate_data/
