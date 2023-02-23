@@ -1,71 +1,72 @@
-import polars as pl
+from cmath import nan
+import pandas
+import pyarrow
+import os
+import math
 import requests
+from bs4 import BeautifulSoup
+import re
+from urllib.parse import quote, urlsplit, urlunsplit, unquote
 
-from pathlib import Path
+# data = pandas.read_parquet("./data/Generated.parquet.gzip")
+data = pandas.read_parquet("./data/Artwork.parquet.gzip")
+print(data.count())  # example of operation on the returned DataFrame
+ca_bundle = "/usr/lib/ssl/cert.pem"
+headers = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'}
 
-FILENAME_LEN_WORDS = 8
-HEADERS = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'}
+# if not os.path.exists('generated_images'):
+#    os.mkdir('generated_images')
+medium_names = ["Oil_on_canvas", "Oil_on_panel", "Mixed_media", "Oil_on_wood", "Marble", "Oil_on_paper",
+                "Tempera_on_panel", "Oil_on_masonite", "Fresco", "Bronze", "Paper", "Tempera_on_canvas", "Oil_on_copper"]
 
 
-def download_images(urls: list[str], filenames: list[str], destination: str, ca_cert_download_path: str = "https://mkcert.org/generate/") -> None:
-    if len(urls) != len(filenames):
-        raise Exception("You need to provide the same number of urls and filenames.")
+def map_medium(value):
+    # convert value between 0 and 12 to an index
+    medium_index = int(value * (len(medium_names)-1) / 12.0)
+    return medium_names[medium_index]
 
-    ca_file = Path("certs.pem")
+
+if not os.path.exists('original_images'):
+    os.mkdir('original_images')
+for medium_name in medium_names:
+    if not os.path.exists(f'original_images/{medium_name}'):
+        os.makedirs(f'original_images/{medium_name}')
+
+
+for index, row in data.iterrows():
     try:
-        ca_cert = requests.get(ca_cert_download_path, headers=HEADERS).content
-    except Exception:
-        raise Exception("Unable to download CA cert")
-    
-    with open(str(ca_file), "wb") as f:
-        f.write(ca_cert)
-
-    path = Path(destination)
-    path.mkdir(parents=True, exist_ok=True)
-
-    for i, url, filename in zip(range(len(urls)), urls, filenames):
-        try:
-            response = requests.get(url, headers=HEADERS, verify=str(ca_file))
-            if response.status_code != 200:
-                print(f'Error downloading image from {url}, response: {response.content}')
+        if 'medium' in data.columns:
+            medium = row['medium']
+            if math.isnan(medium):
+                continue
             else:
-                with open(f"{destination}/{filename}_{i}.jpg", 'wb') as f:
-                    f.write(response.content)
-        except requests.exceptions.RequestException as e:
-            print(f'Error: {e}')
+                medium = map_medium(medium)
+        # Split the URL into its components and quote each component this is needed only for generated images
+        # scheme, netloc, path, query, fragment = urlsplit(
+        #    row['image_url'])  # just url for generated files
+        # path = quote(path)
+        # query = quote(query, safe='=&')
+        # fragment = quote(fragment)
+        # urlunsplit((scheme, netloc, path, query, fragment))
+        url = row['image_url']
 
+        print(url)
+        response = requests.get(url, verify=False)
 
-    ca_file.unlink()
+        if response.status_code != 200:
+            print(
+                f'Error downloading image from {url}, response: {response.content}')
+        else:
+            # Get the name of the painting from the URL
+            print("image located")
+            painting_name = os.path.splitext(
+                unquote(os.path.basename(url)))[0]
 
+            with open(f'original_images/{medium}/{painting_name}_{index}.jpg', 'wb') as f:
+                f.write(response.content)
+            # with open(f'generated_images/{painting_name}_{index}.jpg', 'wb') as f:
+            #    f.write(response.content)#use this for generated images
 
-if __name__ == "__main__":
-    pl.Config.set_fmt_str_lengths(150)
-
-    artwork_filename_dictionary_df = pl.read_parquet("data/Artwork.parquet.gzip", columns=["image_url", "name"])\
-        .with_columns([
-            pl.col("name").str.replace_all(r"[^\P{P}-]+", "").apply(lambda s: "_".join(s.lower().split(" ")[:FILENAME_LEN_WORDS])).alias("filename")
-        ]) \
-        .rename({"image_url": "url"})
-        
-    print(artwork_filename_dictionary_df.head())
-
-    generated_filename_dictionary_df = pl.read_parquet("data/Generated.parquet.gzip", columns=["url"]).with_columns([
-        pl.col("url").str.extract(r"([^/]*)$").str.replace_all(r"[^\P{P}-]+", "").apply(lambda s: "_".join(s.lower().split(" ")[:FILENAME_LEN_WORDS])).alias("filename"),
-        pl.col("url").str.replace_all(r" ", "+")
-    ])
-    
-    print(generated_filename_dictionary_df.head())
-    
-    # urls_custom = urls_original.filter(pl.col("rowid") == 5371).get_column("image_url").to_list()
-    # print(urls_custom[0])
-    download_images(
-        artwork_filename_dictionary_df.get_column("url").to_list(),
-        artwork_filename_dictionary_df.get_column("filename").to_list(), 
-        "data/images/original"
-    )
-
-    download_images(
-        generated_filename_dictionary_df.get_column("url").to_list(),
-        generated_filename_dictionary_df.get_column("filename").to_list(), 
-        "data/images/generated"
-    )
+    except requests.exceptions.RequestException as e:
+        print(f'Error: {e}')
