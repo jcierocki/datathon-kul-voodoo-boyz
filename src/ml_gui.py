@@ -4,13 +4,14 @@ import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output, State
 from dash import dcc, html, dash_table
 
+import joblib
 import cv2
+import base64
 import numpy as np
-# import base64
-# import io
-# import datetime
 
-# import pandas as pd
+from sklearn.svm import SVC
+
+from img_db import preproc_img_svm
 
 # dash.register_page(__name__, path="/ml")
 app = dash.Dash(__name__, url_base_pathname="/ml/", external_stylesheets = [dbc.themes.BOOTSTRAP, "https://github.com/plotly/dash-app-stylesheets/blob/master/dash-analytics-report.css"])
@@ -44,31 +45,36 @@ app.layout = dbc.Container(fluid=True, children=[
                         'margin': '0px'
                     },
                     # Allow multiple files to be uploaded
-                    multiple=False
+                    multiple=True
                 ),
-                html.Div(id='output-data-upload'),
             ], width={"size": 2, "offset": 3}),
             dbc.Col([
-                dbc.Row([
-                    html.Div("Some text")
+                dbc.Row(html.H3("Model results")),
+                dbc.Row(class_name="model-output", children=[
+                    dbc.Col([html.Div("ML fake detector")]),
+                    dbc.Col([html.Div(id="mod-out-1")])
                 ]),
-                dbc.Row([
-                    html.Div("Some text")
-                ])
+                dbc.Row(class_name="model-output", children=[
+                    dbc.Col([html.Div("DL fake detector")]),
+                    dbc.Col([html.Div(id="mod-out-2", children=["fake"])])
+                ]),
+                dbc.Row(class_name="model-output", children=[
+                    dbc.Col([html.Div("DL movement classifier")]),
+                    dbc.Col([html.Div(id="mod-out-3", children=["fake"])])
+                ]),
             ], width={"size": 4, "offset": 0})
-        ])
+        ], style={"padding-top": "10px"})
     ])
 
-def load_and_preprocess(image):
-   image = cv2.imread(image, cv2.IMREAD_GRAYSCALE).resize((512, 512))
+mod_fake_svm: SVC = joblib.load("output/svm_trained.xz")
+# mod_fake_gfnet = joblib.load("../output/svm_trained.xz")
 
-   return image
+# def load_image(image):
+#    image = cv2.imread(image, cv2.IMREAD_GRAYSCALE).resize((512, 512))
 
-# def np_array_normalise(test_image):
-#    np_image = np.array(test_image)
-#    np_image = np_image / no_of_pixels
-#    final_image = np.expand_dims(np_image, 0)
-#    return final_image
+#    return image
+
+# def process_image_svm(image):
 
 # @app.callback(Output('output-prediction', 'children'),
 #               Input('upload-image', 'filename'))
@@ -80,6 +86,25 @@ def load_and_preprocess(image):
 #     final_img = np_array_normalise(final_img)
 #     Y = model.predict(final_img)
 #     return Y
+@app.callback(
+        Output("mod-out-1", "children"),
+        Input("upload-data", "contents")
+)
+def predict_all(image):
+    if image is None:
+         raise dash.exceptions.PreventUpdate()
+
+    encoded_data = image[0].split(',')[1]
+    nparr = np.frombuffer(base64.b64decode(encoded_data), np.uint8)
+    img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+
+    X = preproc_img_svm(img)
+    print(X.shape)
+
+    pred_svm = mod_fake_svm.predict(X)[0]
+
+    return "true" if pred_svm == 1 else "fake"
+
 
 
 if __name__ == "__main__":

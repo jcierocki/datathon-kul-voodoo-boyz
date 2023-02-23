@@ -13,12 +13,22 @@ from numpy.typing import NDArray
 
 from scipy.fft import dct, fft
 
-def crop(m: cv2.Mat, crop_size: int):
+def crop(m: cv2.Mat, crop_size: int) -> NDArray:
     img_width, img_height = m.shape
     img_x0 = math.floor((img_width - crop_size) / 2)
     img_y0 = math.floor((img_height - crop_size) / 2)
 
     return m[img_x0:(img_x0 + crop_size), img_y0:(img_y0 + crop_size)]
+
+def preproc_img_svm(img: cv2.Mat) -> NDArray:
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    img = cv2.fastNlMeansDenoising(img, dst=None, h=7, templateWindowSize=11, searchWindowSize=40)
+    img = crop(img, 64)
+
+    img_vec = img.flatten('C')
+    img_vec = np.array(dct(img_vec), dtype=np.double)
+
+    return np.log(np.abs(img_vec + 1))[np.r_[:512, -1024:-1]].reshape(1, -1)
 
 class ImageDatabase(object):
     def __init__(
