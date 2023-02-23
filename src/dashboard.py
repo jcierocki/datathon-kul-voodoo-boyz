@@ -21,7 +21,7 @@ import flask
 
 server = flask.Flask(__name__)
 
-app = dash.Dash(url_base_pathname="/", external_stylesheets=[dbc.themes.MINTY], server=server)
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.MINTY], server=server)
 
 color_1 = '#CCEECD'
 color_2 = '#0F7620'
@@ -126,13 +126,20 @@ navbar = dbc.Navbar(
 
 def get_number_artists():
     df_artists = pl.from_dicts(graph.run("""
-            match (a: Artist)
-            return a.name as artist
-            order by artist;
+                match (a: Artist)
+                return a.name as artist
+                order by artist;
     """).data(), schema={"artist": str}).to_pandas()
 
     df_artists['artist'] = df_artists['artist'].str.replace('\(after\) ', '')
     # drop row with "and ..."
+    df_artists = df_artists[df_artists['artist'].str.contains('School') == False]
+    df_artists = df_artists[df_artists['artist'].str.contains('Edouard (Jean-Edouard) Vuillard') == False]
+    df_artists = df_artists[df_artists['artist'].str.contains('Dyck, Sir Anthony van') == False]
+    df_artists = df_artists[df_artists['artist'].str.contains('Millais, Sir John Everett') == False]
+    df_artists = df_artists[df_artists['artist'].str.contains('Kneller, Sir Godfrey') == False]
+    df_artists = df_artists[df_artists['artist'].str.contains('Landseer, Sir Edwin') == False]
+    df_artists = df_artists[df_artists['artist'].str.contains('Salvador Dali (inspired by)') == False]
     df_artists = df_artists['artist'].unique()[:-1]
     return len(df_artists)
 
