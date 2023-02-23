@@ -1,3 +1,6 @@
+import gfnet
+import numpy as np
+
 import torch
 import os
 import itertools
@@ -5,11 +8,8 @@ import cv2
 from PIL import Image
 from torch.utils.data import Dataset
 from torchvision import transforms
+
 from torchvision.datasets.folder import default_loader
-
-import numpy as np
-
-# os.chdir("./GFNet")
 
 
 class GFNetClassifier():
@@ -34,7 +34,7 @@ class GFNetClassifier():
         for file in os.listdir(self.image_folder):
             file_path = os.path.join(self.image_folder, file)
             # Get the width and height of the image
-            image = Image.open(file_path)
+            image = Image.open(file_path).convert("RGB")
             width, height = image.size
 
             # Set the size of the crop
@@ -82,7 +82,7 @@ class GFNetClassifier():
 
 if __name__ == "__main__":
     model = GFNetClassifier()
-    results = model.predict("../weights/GFNet.pth",
-                            "../original_images_movement/Bauhaus")
+    results = model.predict("./weights/GFNet.pth",
+                            "./generated_images/")
 
     print(results[1])
