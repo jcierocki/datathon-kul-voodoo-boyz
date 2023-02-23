@@ -86,10 +86,10 @@ class YoloV8Classifier():
         # Set path to image folder
         self.image_folder = image_path
         # Create a list to store predictions for each image
-        
+
         # Load image
         im = Image.open(image_path)
-        
+
         imResize = im.resize((640, 640), Image.LANCZOS)
         # Perform inference
         results = self.model.predict(imResize, show=False)
@@ -100,7 +100,7 @@ class YoloV8Classifier():
         index_names = [index_to_name[i] for i in index.tolist()]
         probs = results.tolist()
         # Create a dictionary to store the predictions for this image
-        prediction = {"filename": filename, "predictions": []}
+        prediction = {"filename": image_path, "predictions": []}
 
         # Loop through the predicted class names and their probabilities and add them to the dictionary
         for name, prob in zip(index_names, probs):
@@ -108,17 +108,15 @@ class YoloV8Classifier():
                 {"movement": name, "probability": 100*prob})
 
         # Add the dictionary to the list of predictions
-        
+
         # Print the list of predictions
         # print(predictions)
-        return predictions
+        return prediction
 
 
 if __name__ == "__main__":
     model = YoloV8Classifier()
     results = model.predict("./weights/best.pt",
-                            "original_images_movement/Abstract")
+                            "./generated_images/A painting of 6th Sokol Festival. 1912 in the style of Alphonse Maria Mucha_0.jpg")
 
-    print(results[0])
-
-
+    print(results)
