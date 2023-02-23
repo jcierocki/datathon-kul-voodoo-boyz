@@ -67,7 +67,7 @@ class GFNetClassifier():
                 # Loop through the predicted class names and their probabilities and add them to the dictionary
                 for name, prob in zip(index_names, probs):
                     prediction["predictions"].append(
-                        {"movement": name})
+                        {"type": name})
 
                 # Add the dictionary to the list of predictions
 
