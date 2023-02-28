@@ -30,7 +30,7 @@ The task was to pursue any analysis and then present it in a way that would impr
 
 Image data consists of ~ 13k images od size ~ 512x512, being either real or generated, with proportion ~ 1:3 (class imbalance). Among the ~ 10k images of real artwork, we were able to match movements to ~ 4k of them (based on Artwork -- Artist -- Movement relation in the graph). Howewer we were able to provide unique movement only for 2872 images.
 
-We used that data mentioned above to train 3 different models. For synetitc image detection
+We used that data mentioned above to train 3 different models.
 
 1. SVM-based syntetic (generated) image detector:
     - grayscale, 64x64 middle pixels crop
@@ -58,6 +58,8 @@ We used that data mentioned above to train 3 different models. For synetitc imag
     - fine-tuned on our dataset
     - TOP5 accuracy: 94%
     - TOP1 accuracy: 40%
+
+Models 1 & 2 were both based on a idea of extracting invisible artifacts specific for a given generative architecture (in our case Stable Diffussion).
   
 ## References
 
