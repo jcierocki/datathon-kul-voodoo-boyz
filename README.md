@@ -11,7 +11,7 @@ This repository is intended to store all the analysis and codes developed during
 
 ## Problem description
 
-We were given a graph databse with various data about artists and artworks:
+We were given (by the organisers) a graph databse with various data about artists and artworks:
 
 - artworks with images
 - artists with basic bio's
@@ -28,9 +28,9 @@ The task was to pursue any analysis and then present it in a way that would impr
 
 ## Data and modelling:
 
-Image data consists of ~ 13k images od size ~ 512x512, being either real or generated, with proportion ~ 1:3 (class imbalance). Among the ~ 10k images of real artwork, we were able to match movements to ~ 4k of them (based on Artwork -- Artist -- Movement relation in the graph). Howewer we were able to provide unique movement only for 2872 images.
+Image data consists of ~ 13k images od size ~ 512x512, being either real or generated, with proportion ~ 1:3 (class imbalance). Among the ~ 10k images of real artwork, we were able to match movements to ~ 4k of them (based on Artwork -- Artist -- Movement relation in the graph). Howewer we were able to provide unique movements only for 2872 images.
 
-We used that data mentioned above to train 3 different models.
+We used the data mentioned above to develop 3 different ML models.
 
 1. SVM-based syntetic (generated) image detector:
     - grayscale, 64x64 middle pixels crop
