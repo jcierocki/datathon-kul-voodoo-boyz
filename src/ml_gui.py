@@ -16,7 +16,7 @@ from img_db import preproc_img_svm
 from Yolov8_single import YoloV8Classifier, YOLO
 from GFNet_single import GFNetClassifier, torch
 
-# dash.register_page(__name__, path="/ml")
+
 app = dash.Dash(__name__, url_base_pathname="/ml/", external_stylesheets = [dbc.themes.BOOTSTRAP, "https://github.com/plotly/dash-app-stylesheets/blob/master/dash-analytics-report.css"])
 
 app.layout = dbc.Container(fluid=True, children=[
@@ -74,25 +74,6 @@ mod_movements_yolo: YOLO = YOLO("weights/best.pt")
 mod_gfnet = torch.load("weights/GFNet.pth")
 mod_gfnet.eval()
 
-# mod_fake_gfnet = joblib.load("../output/svm_trained.xz")
-
-# def load_image(image):
-#    image = cv2.imread(image, cv2.IMREAD_GRAYSCALE).resize((512, 512))
-
-#    return image
-
-# def process_image_svm(image):
-
-# @app.callback(Output('output-prediction', 'children'),
-#               Input('upload-image', 'filename'))
-
-# def prediction(image):
-#     if image is None:
-#         raise dash.exceptions.PreventUpdate()
-#     final_img = load_and_preprocess(image)
-#     final_img = np_array_normalise(final_img)
-#     Y = model.predict(final_img)
-#     return Y
 @app.callback(
         [
             Output("mod-out-1", "children"),
