@@ -108,7 +108,7 @@ def predict_all(image):
     pred_gfnet = GFNetClassifier().predict(mod_gfnet, img_pil)['predictions'][0]['type']
     print("done")
 
-    return "Real" if pred_svm == 1 else "Fake", pred_gfnet, point_pred_yolo
+    return pred_gfnet, pred_gfnet, point_pred_yolo
 
 
 
